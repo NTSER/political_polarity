@@ -1,0 +1,8 @@
+start_date: '01-03-2023'
+end_date: '24-10-2023'
+scrape_spiders:
+  imedi: true
+  mtavari: true
+  formula: true
+  tv1: true
+  tvpirveli: true
