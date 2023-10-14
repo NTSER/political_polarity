@@ -1,0 +1,3 @@
+filename: '19_01_2024_16_44_06'
+period_length: '1d'
+ewma: [0.05, 0.25]

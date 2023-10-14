@@ -7,3 +7,9 @@ gensim==4.3.0
 Scrapy==2.9.0
 beautifulsoup4==4.12.2
 cloudscraper==1.2.71
+black==23.12.1
+tqdm==4.66.1
+pyyaml==6.0.1
+Twisted==22.10.0
+fastparquet==2023.10.1
+openpyxl==3.1.2

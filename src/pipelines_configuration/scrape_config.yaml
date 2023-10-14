@@ -1,8 +1,8 @@
-start_date: '01-03-2023'
-end_date: '24-10-2023'
+start_date: '06-01-2024' #included
+end_date: '19-01-2024' # not included
 scrape_spiders:
-  imedi: true
-  mtavari: true
-  formula: true
-  tv1: true
+  formula: false
+  imedi: false
+  mtavari: false
+  tv1: false
   tvpirveli: true
