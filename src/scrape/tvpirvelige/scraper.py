@@ -30,6 +30,7 @@ class NewsScraperSpider:
             "scraped_data",
             f"{self.start_date.date()}_{self.end_date.date()}",
         )
+        self.check_data_existence()
         with open(
             os.path.join(self.data_path, "tvpirveli.csv"),
             "w",
@@ -39,6 +40,12 @@ class NewsScraperSpider:
             writer = csv.writer(csv_file)
             writer.writerow(["date", "title", "content_url", "content", "source"])
         os.makedirs(self.data_path, exist_ok=True)
+
+    def check_data_existence(self):
+        if os.path.exists(os.path.join(self.data_path, "tvpirveli.csv")):
+            raise Exception(
+                "Please make sure you want to delete tvpirveli.csv and remove manually"
+            )
 
     def get_next_url(self, url):
         current_page = int(re.search(r"\d+$", url).group(0))

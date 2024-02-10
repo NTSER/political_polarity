@@ -44,6 +44,7 @@ class Scraper:
             pathlib.Path(__file__).parents[1], "data", "scraped_data", self.filename
         )
         os.makedirs(self.data_path, exist_ok=True)
+        self.check_data_existence()
 
         self.settings = {
             "FEEDS": {
@@ -62,11 +63,21 @@ class Scraper:
             "RETRY_TIMES": 100,
             "REQUEST_FINGERPRINTER_IMPLEMENTATION": "2.7",
             "TWISTED_REACTOR": "twisted.internet.asyncioreactor.AsyncioSelectorReactor",
-            "DOWNLOAD_DELAY": 4,
+            "DOWNLOAD_DELAY": 0.5,
             "COOKIES_ENABLED": False,
             "ROBOTSTXT_OBEY": False,
             "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
         }
+
+    def check_data_existence(self):
+        if os.path.exists(os.path.join(self.data_path, f"{self.web_name}.json")):
+            raise Exception(
+                f"Please make sure you want to delete {self.web_name}.json and remove manually"
+            )
+        if os.path.exists(os.path.join(self.data_path, f"{self.web_name}.log")):
+            raise Exception(
+                f"Please make sure you want to delete {self.web_name}.log and remove manually"
+            )
 
     def scrape(self):
         process = CrawlerProcess(settings=self.settings)
