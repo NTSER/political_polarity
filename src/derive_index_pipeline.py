@@ -11,14 +11,20 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.decomposition import PCA
+from matplotlib.animation import FuncAnimation, FFMpegWriter
+import matplotlib.image as mpimg
 
 from pipelines_configuration.derive_index_configuration import DeriveIndexConfig
 
 
 def main():
+    config = DeriveIndexConfig().get_config()
     polarity_obj = PolarityIndex()
     polarity_df = polarity_obj.get_polarity()
     polarity_obj.save_index(polarity_df)
+    if config["save_animation"]:
+        polarity_obj.save_animation()
 
 
 class PolarityIndex:
@@ -41,13 +47,23 @@ class PolarityIndex:
         self.period_length = self.config["period_length"]
         self.ewma1 = min(self.config["ewma"])
         self.ewma2 = max(self.config["ewma"])
-        self.gov_media = ["imedinewsge", "tv1ge", "postvmedia"]
+        self.gov_media = ["imedinewsge", "tv1ge", "postv.media", "rustavi2ge"]
         self.opp_media = ["tvpirvelige", "formulanewsge", "mtavaritv"]
         self.combs = list(combinations(self.gov_media + self.opp_media, 2))
         self.within_combs = list(combinations(self.gov_media, 2)) + list(
             combinations(self.opp_media, 2)
         )
         self.between_combs = list(set(self.combs) - set(self.within_combs))
+        logos_path = os.path.join(pathlib.Path(__file__).parents[0], "logos")
+        self.source_to_logo = {
+            "imedinewsge": mpimg.imread(os.path.join(logos_path, "imedinews.png")),
+            "postv.media": mpimg.imread(os.path.join(logos_path, "postv.png")),
+            "tv1ge": mpimg.imread(os.path.join(logos_path, "1tv.jpg")),
+            "rustavi2ge": mpimg.imread(os.path.join(logos_path, "rustavi2.png")),
+            "formulanewsge": mpimg.imread(os.path.join(logos_path, "formulanews.png")),
+            "mtavaritv": mpimg.imread(os.path.join(logos_path, "mtavari.png")),
+            "tvpirvelige": mpimg.imread(os.path.join(logos_path, "tvpirveli.png")),
+        }
         self.index_path = os.path.join(data_path, "index", time_str)
         os.makedirs(self.index_path, exist_ok=True)
 
@@ -241,6 +257,63 @@ class PolarityIndex:
         self.media_counts.to_excel(
             os.path.join(self.index_path, "news_quantities.xlsx")
         )
+
+    def reduce_daily_dimension(self):
+        pca = PCA(n_components=2, random_state=7)
+        repr_vecs = (
+            self.df.groupby([pd.Grouper(freq="1d", key="date"), "source"])
+            .agg({"vecs": "mean"})
+            .reset_index()
+        )
+        repr_vecs[["x", "y"]] = pca.fit_transform(np.vstack(repr_vecs["vecs"].values))
+        repr_vecs[["x_ewma", "y_ewma"]] = repr_vecs.groupby("source", group_keys=False)[
+            ["x", "y"]
+        ].apply(lambda x: x.ewm(alpha=0.05).mean())
+        return repr_vecs
+
+    def save_animation(self, file_name="animation.mp4", im_size=0.4):
+        repr_vecs = self.reduce_daily_dimension()
+        repr_vecs = repr_vecs.dropna()
+        unique_dates = repr_vecs["date"].unique()
+        num_iterations = unique_dates.shape[0]
+        fig, ax = plt.subplots()
+
+        def annimate(i):
+            if i >= num_iterations:
+                return
+
+            date = unique_dates[i]
+            filtered = repr_vecs[repr_vecs["date"] == date]
+
+            ax.cla()
+            ax.scatter(filtered["x_ewma"], filtered["y_ewma"], alpha=0)
+            ax.grid(True, linestyle="--", alpha=0.5)
+            ax.set_xlim([-3, 3])
+            ax.set_ylim([-2, 2])
+            ax.set_yticks([-2, -1, 0, 1, 2])
+            ax.set_title(date.astype(str)[0:10], fontsize=20, fontweight="bold")
+            for j in range(filtered.shape[0]):
+                current_img = self.source_to_logo.get(filtered["source"].iloc[j])
+                img_y, img_x = current_img.shape[0:2]
+                img_y, img_x = img_y / (img_y + img_x), img_x / (img_y + img_x)
+                ax.imshow(
+                    current_img,
+                    extent=[
+                        filtered["x_ewma"].iloc[j] - im_size * img_x,
+                        filtered["x_ewma"].iloc[j] + im_size * img_x,
+                        filtered["y_ewma"].iloc[j] - im_size * img_y,
+                        filtered["y_ewma"].iloc[j] + im_size * img_y,
+                    ],
+                )
+            for x, y in zip(filtered["x_ewma"], filtered["y_ewma"]):
+                ax.arrow(0, 0, x * 0.7, y * 0.7, width=0.03, color="black")
+
+            ax.scatter(0, 0, color="red", marker="o", edgecolor="black", s=140)
+
+        animation = FuncAnimation(fig, annimate, interval=200, frames=num_iterations)
+        writer = FFMpegWriter(fps=15)
+        plt.rcParams["animation.ffmpeg_path"] = r"C:\ffmpeg\bin\ffmpeg.exe"
+        animation.save(os.path.join(self.index_path, file_name), writer=writer)
 
 
 if __name__ == "__main__":
