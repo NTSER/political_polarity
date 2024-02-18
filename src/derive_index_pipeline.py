@@ -47,7 +47,7 @@ class PolarityIndex:
         self.period_length = self.config["period_length"]
         self.ewma1 = min(self.config["ewma"])
         self.ewma2 = max(self.config["ewma"])
-        self.gov_media = ["imedinewsge", "tv1ge", "postv.media", "rustavi2ge"]
+        self.gov_media = ["imedinewsge", "tv1ge", "postvmedia", "rustavi2ge"]
         self.opp_media = ["tvpirvelige", "formulanewsge", "mtavaritv"]
         self.combs = list(combinations(self.gov_media + self.opp_media, 2))
         self.within_combs = list(combinations(self.gov_media, 2)) + list(
@@ -57,7 +57,7 @@ class PolarityIndex:
         logos_path = os.path.join(pathlib.Path(__file__).parents[0], "logos")
         self.source_to_logo = {
             "imedinewsge": mpimg.imread(os.path.join(logos_path, "imedinews.png")),
-            "postv.media": mpimg.imread(os.path.join(logos_path, "postv.png")),
+            "postvmedia": mpimg.imread(os.path.join(logos_path, "postv.png")),
             "tv1ge": mpimg.imread(os.path.join(logos_path, "1tv.jpg")),
             "rustavi2ge": mpimg.imread(os.path.join(logos_path, "rustavi2.png")),
             "formulanewsge": mpimg.imread(os.path.join(logos_path, "formulanews.png")),

@@ -9,6 +9,7 @@ from scrape.mtavaritv.mtavaritv.spiders.mtavari import MtavariSpider
 from scrape.tv1ge.tv1ge.spiders.tv1 import Tv1Spider
 from scrape.tvpirvelige.scraper import NewsScraperSpider
 from scrape.rustavi2ge.rustavi2ge.spiders.rustavi2 import Rustavi2Spider
+from scrape.postvmedia.postvmedia.spiders.postv import PostvSpider
 
 
 def main():
@@ -30,6 +31,8 @@ def main():
         NewsScraperSpider().scrape_tvpirveli()
     if config["scrape_spiders"]["rustavi2"]:
         Scraper(Rustavi2Spider, "rustavi2").scrape()
+    if config["scrape_spiders"]["postvmedia"]:
+        Scraper(PostvSpider, "postvmedia").scrape()
 
 
 class Scraper:
