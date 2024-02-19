@@ -1,8 +1,2 @@
 model_name: 'shotas_model'
-vectorize_media:
-  formula: true
-  imedi: true
-  mtavari: true
-  tv1: true
-  postv: true
-  tvpirveli: true
+exclude_files: []

@@ -40,7 +40,7 @@ class Vectorizer:
         self.model = Doc2Vec.load(self.model_path)
         self.df = pd.concat(
             [
-                self.read_files(folder.path)
+                self.read_files(folder.path, config["exclude_files"])
                 for folder in os.scandir(self.scraped_data_path)
             ]
         )
@@ -61,13 +61,14 @@ class Vectorizer:
         plt.close()
 
     @staticmethod
-    def read_files(folder_path):
+    def read_files(folder_path, exclude_files):
         df = pd.DataFrame()
         for file in os.scandir(folder_path):
             basename = os.path.basename(file.path)
             file_extension = os.path.splitext(basename)[1]
-            # TODO implement code which doesnt read files indicated in yaml
-            if file_extension == ".json":
+            if basename in exclude_files:
+                pass
+            elif file_extension == ".json":
                 df = pd.concat([df, pd.read_json(file.path)])
             elif file_extension == ".csv":
                 df = pd.concat([df, pd.read_csv(file.path)])
