@@ -76,7 +76,7 @@ class PolarityIndex:
         )
         return repr_vecs
 
-    def get_media_weights(self, ratings_path="data/ratings.xlsx"):
+    def get_media_weights(self, ratings_path="ratings.xlsx"):
         def explode_row(row):
             new_df = pd.DataFrame(columns=["date", "comb", "weight_i_j"])
             for n_days in range(7):  # 7 days in week
