@@ -1,6 +1,6 @@
 model_name: 'nikas_model'
 default_params: 
-  vector_size: 1024
+  vector_size: 256
   window: 5
   alpha: 0.025
   min_alpha: 0.001
@@ -9,8 +9,8 @@ default_params:
 hyperparameter_tuning:
   enabled: true
   params:
-    vector_size: [512,1024]
-    window: [5]
+    vector_size: [32, 64, 128, 256]
+    window: [3, 5]
     alpha: [0.025]
     min_alpha: [0.001]
-    max_vocab_size: [10000, 100000]
+    max_vocab_size: [5000, 10000, 30000]
